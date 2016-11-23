@@ -72,12 +72,12 @@ public class MazeGen : MonoBehaviour {
         for (int x = 0; x < maze_x_size; ++x)
         {
             add_wall(x, 0, SOUTH);
-            add_wall(x, maze_z_size, NORTH);
+            add_wall(x, maze_z_size-1, NORTH);
         }
         for (int z = 0; z < maze_z_size; ++z)
         {
             add_wall(0, z, WEST);
-            add_wall(maze_x_size, z, EAST);
+            add_wall(maze_x_size-1, z, EAST);
         }
 
         // TODO implement maze generation algorithm
@@ -90,6 +90,7 @@ public class MazeGen : MonoBehaviour {
             for (int z = 0; z < maze_z_size; ++z)
             {
                 GameObject go = Instantiate(cell_prefabs[map[x, z]]) as GameObject;
+                cell_instances[x, z] = go;
                 go.transform.SetParent(maze_parent.transform);
 
                 Vector3 pos = new Vector3(x * cell_x_offset, 0, z * cell_z_offset);
