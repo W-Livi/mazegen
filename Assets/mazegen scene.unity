@@ -141,8 +141,8 @@ MonoBehaviour:
   - {fileID: 1000011319110818, guid: 4c91e4a81b6a5d24fafadb767e60d0f7, type: 2}
   cell_x_offset: 2
   cell_z_offset: 2
-  maze_x_size: 5
-  maze_z_size: 5
+  maze_x_size: 10
+  maze_z_size: 10
 --- !u!81 &1371163809
 AudioListener:
   m_ObjectHideFlags: 0
