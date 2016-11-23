@@ -13,6 +13,8 @@ public class MazeGen : MonoBehaviour {
     private int[,] map; // where we design the maze layout
         
     private GameObject[,] cell_instances; // in case we wish to address a cell-object by its coordinates *shrug*
+    private GameObject cell_start;
+    private GameObject cell_end;
 
     private static int NORTH = 1;
     private static int EAST = 2;
@@ -25,8 +27,11 @@ public class MazeGen : MonoBehaviour {
         map = new int[maze_x_size, maze_z_size];
         cell_instances = new GameObject[maze_x_size, maze_z_size];
         initmap();
+
         DesignMaze();
+        punch_holes();
         ConstructMaze();
+        place_ends();
     }
 
     private int add_wall(int cell, int wall)
@@ -80,7 +85,56 @@ public class MazeGen : MonoBehaviour {
             add_wall(maze_x_size-1, z, EAST);
         }
 
-        // TODO implement maze generation algorithm
+        mazegen_xsplit(0, maze_x_size - 1, 0, maze_z_size - 1);
+    }
+
+    private void punch_holes() {
+        rem_wall(0, 0, SOUTH);
+        rem_wall(maze_x_size - 1, 0, SOUTH);
+    }
+
+    private void place_ends() {
+        cell_start = Instantiate(cell_prefabs[EAST|SOUTH|WEST]) as GameObject;
+        cell_start.transform.SetParent(maze_parent.transform);
+        Vector3 pos = new Vector3(0 * cell_x_offset, 0, -1 * cell_z_offset);
+        cell_start.transform.position = pos;
+
+        cell_end = Instantiate(cell_prefabs[EAST|SOUTH|WEST]) as GameObject;
+        cell_end.transform.SetParent(maze_parent.transform);
+        pos = new Vector3((maze_x_size-1) * cell_x_offset, 0, -1 * cell_z_offset);
+        cell_end.transform.position = pos;
+    }    
+
+    private void mazegen_xsplit(int xmin, int xmax, int zmin, int zmax) {
+        if (xmin >= xmax || zmin >= zmax) return;
+
+        int xsplit = Random.Range(xmin, xmax - 1);
+        int zgap = Random.Range(zmin, zmax - 1);
+
+        for (int z = zmin; z <= zmax; ++z) {
+            if (z == zgap) continue;
+            add_wall(xsplit, z, EAST);
+            add_wall(xsplit + 1, z, WEST);
+        }
+
+        mazegen_zsplit(xmin, xsplit, zmin, zmax);
+        mazegen_zsplit(xsplit + 1, xmax, zmin, zmax);
+    }
+
+    private void mazegen_zsplit(int xmin, int xmax, int zmin, int zmax) {
+        if (xmin >= xmax || zmin >= zmax) return;
+
+        int zsplit = Random.Range(zmin, zmax);
+        int xgap = Random.Range(xmin, xmax);
+
+        for (int x = xmin; x <= xmax; ++x) {
+            if (x == xgap) continue;
+            add_wall(x, zsplit, NORTH);
+            add_wall(x, zsplit+1, SOUTH);
+        }
+
+        mazegen_xsplit(xmin, xmax, zmin, zsplit);
+        mazegen_xsplit(xmin, xmax, zsplit+1, zmax);
     }
 
     private void ConstructMaze()
